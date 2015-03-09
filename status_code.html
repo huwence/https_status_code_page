@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HTTP status codes</title>
+</head>
+<style>
+.runner {
+    font-family: microsoft Yahei;
+    position: relative;
+    perspective: 800px;
+    width: 300px;
+    height: 300px;
+}
+.wrapper {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    -webkit-transition: 300ms transform;
+}
+.wrapper .item {
+    position: absolute;
+    width: 60px;
+    height: 80px;
+    line-height: 80px;
+    text-align: center;
+    left: 50%;
+    top: 50%;
+    margin: -40px 0 0 -30px;
+    background-color: #ccc;
+    color: #ccc;
+    background-image: linear-gradient(to bottom, #5E625F 0, #686E71 50%, #5E625F 100%);
+}
+</style>
+<body>
+    <div id="runner-1"></div>
+</body>
+<script>
+//=======================================
+// Runner Class
+//=======================================
+function Runner(options) {
+    this.options = options || {};
+    this.build();
+}
+
+Runner.PI = Math.PI;
+Runner.CSS_PREFIXS = ['-webkit-', '-moz-', '-o-', '']; 
+Runner.COUNT = 10;
+
+Runner.prototype.build = function () {
+    var container = this.options.container;
+
+    if (!container) {
+        throw 'Missing Container for building';
+    }
+
+    var sideLength = this.options.sildLength || 80;
+    var z = (sideLength / 2) / Math.tan(Runner.PI / Runner.COUNT);
+
+    container.className = 'runner';
+    this.wrapper = document.createElement('div');
+    this.wrapper.className = 'wrapper';
+
+    for (var i = 0, l = Runner.COUNT; i < l; i++) {
+        item = document.createElement('div');
+        item.innerHTML = i;
+        item.className = 'item';
+        this.setStyle(item, 'transform', 'rotateX(' + (i * 360 / l) + 'deg)' + ' ' + 'translateZ(' + z + 'px)');
+        this.wrapper.appendChild(item);
+    }
+
+    container.appendChild(this.wrapper);
+}
+
+Runner.prototype.setStyle = function (el, style, value) {
+    Runner.CSS_PREFIXS.forEach(function (prefix) {
+        el.style[prefix + style] = value;
+    });
+}
+
+Runner.prototype.addStyleRule = function (sheet, selector, rules, index) {
+    if ('insertRule' in sheet) {
+        sheet.insertRule(selector + '{' + rules + '}', index);
+    } else if ('addRule' in sheet) {
+        sheet.addRule(selector + rules, index);
+    }
+}
+
+Runner.prototype.getKeyframeRule = function (from, to) {
+    var fromStr = 'from{', toStr = 'to{';
+
+    Runner.CSS_PREFIXS.forEach(function (prefix) {
+        fromStr += prefix + 'transform:' + from + ';';
+        toStr += prefix + 'transform:' + to + ';';
+    });
+
+    fromStr += '}';
+    toStr += '}';
+
+    return fromStr + toStr;
+}
+
+Runner.prototype.getRotateStr = function (axis, deg) {
+    return 'rotate' + axis.toUpperCase() + '(' + deg + 'deg)';
+}
+
+Runner.prototype.getUid = function () {
+    var num = Math.random().toString().substring(2);
+    return Number(num).toString(36).replace(/[0-9]+/g, '');
+}
+
+Runner.prototype.play = function (code) {
+    var rotate = (Runner.COUNT - code) * 360 / Runner.COUNT,
+        rule = this.getKeyframeRule(this.getRotateStr('x', 0), this.getRotateStr('x', rotate)),
+        uid = this.getUid(); 
+
+    console.log(rule);
+    this.setStyle(this.wrapper, 'animation', uid + ' 500ms forwards');
+    this.addStyleRule(document.styleSheets[0], '@-webkit-keyframes ' + uid, rule, 1);
+}
+
+//=================================
+//init
+var container = document.getElementById('runner-1');
+var runner = new Runner({container: container});
+runner.play(4);
+//=================================
+
+</script>
+</html>
