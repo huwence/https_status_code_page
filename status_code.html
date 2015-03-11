@@ -9,8 +9,10 @@
     font-family: microsoft Yahei;
     position: relative;
     perspective: 800px;
-    width: 300px;
-    height: 300px;
+    width: 80px;
+    height: 270px;
+    display: inline-block;
+    background-color: #000;
 }
 .wrapper {
     position: absolute;
@@ -30,13 +32,13 @@
     left: 50%;
     top: 50%;
     margin: -40px 0 0 -30px;
-    background-color: #ccc;
-    color: #ccc;
-    background-image: linear-gradient(to bottom, #5E625F 0, #686E71 50%, #5E625F 100%);
+    color: #fff;
+    font-size: 20px;
+    background-color: #000;
 }
 </style>
 <body>
-    <div id="runner-1"></div>
+    <div id="runner-container" status="404"></div>
 </body>
 <script>
 //=======================================
@@ -119,15 +121,22 @@ Runner.prototype.play = function (code) {
         uid = this.getUid(); 
 
     console.log(rule);
-    this.setStyle(this.wrapper, 'animation', uid + ' 500ms forwards');
+    this.setStyle(this.wrapper, 'animation', uid + ' 3s cubic-bezier(.06, .39, 0, .99) forwards');
     this.addStyleRule(document.styleSheets[0], '@-webkit-keyframes ' + uid, rule, 1);
 }
 
 //=================================
 //init
-var container = document.getElementById('runner-1');
-var runner = new Runner({container: container});
-runner.play(4);
+var container = document.querySelector('#runner-container'),
+    status = container.getAttribute('status') || '200',
+    runner;
+
+for (var i = 0, l = status.length; i < l; i ++) {
+    runner = document.createElement('span'); 
+    container.appendChild(runner);
+    new Runner({container: runner}).play(status[i]);
+};
+
 //=================================
 
 </script>
